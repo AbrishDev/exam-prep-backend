@@ -15,7 +15,6 @@ router.post(
     check('idNumber', 'ID number is required').not().isEmpty(),
     check('department', 'Department is required').not().isEmpty(),
     check('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 }),
-    check('confirmPassword', 'Please confirm your password').exists(),
   ],
   userController.register
 );

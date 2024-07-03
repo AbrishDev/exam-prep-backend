@@ -10,11 +10,7 @@ exports.register = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { fullName, gender, idNumber, department, password, confirmPassword, role } = req.body;
-
-  if (password !== confirmPassword) {
-    return res.status(400).json({ msg: 'Passwords do not match' });
-  }
+  const { fullName, gender, idNumber, department, password, role } = req.body;
 
   try {
     let user = await User.findOne({ idNumber });
@@ -28,7 +24,6 @@ exports.register = async (req, res) => {
       idNumber,
       department,
       password,
-      role,
     });
 
     const salt = await bcrypt.genSalt(10);
