@@ -10,7 +10,7 @@ exports.register = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { fullname, gender, idNumber, department, password, confirmPassword, role } = req.body;
+  const { fullName, gender, idNumber, department, password, confirmPassword, role } = req.body;
 
   if (password !== confirmPassword) {
     return res.status(400).json({ msg: 'Passwords do not match' });
@@ -23,7 +23,7 @@ exports.register = async (req, res) => {
     }
 
     user = new User({
-      fullname,
+      fullName,
       gender,
       idNumber,
       department,

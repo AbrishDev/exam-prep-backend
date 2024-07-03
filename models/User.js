@@ -1,13 +1,13 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
-  fullname: {
+  fullName: {
     type: String,
     required: true,
   },
   gender: {
     type: String,
-    enum: ['male', 'female', 'other'],
+    enum: ["Male", "Female"], // match the options from the frontend dropdown
     required: true,
   },
   idNumber: {
@@ -17,16 +17,21 @@ const UserSchema = new mongoose.Schema({
   },
   department: {
     type: String,
+    enum: ["SE", "CS", "IS", "IT"], // match the options from the frontend dropdown
     required: true,
   },
   password: {
     type: String,
     required: true,
   },
+  confirmPassword: {
+    type: String,
+    required: true,
+  },
   role: {
     type: String,
-    enum: ['student', 'instructor', 'superadmin'],
-    default: 'student',
+    enum: ["student", "instructor", "superadmin"],
+    default: "student",
   },
   createdAt: {
     type: Date,
@@ -34,4 +39,4 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model("User", UserSchema);

@@ -1,6 +1,5 @@
 const express = require('express');
 const { check } = require('express-validator');
-const auth = require('../middleware/authMiddleware');
 const userController = require('../controllers/userController');
 
 const router = express.Router();
@@ -11,8 +10,8 @@ const router = express.Router();
 router.post(
   '/register',
   [
-    check('fullname', 'Full name is required').not().isEmpty(),
-    check('gender', 'Gender is required').isIn(['male', 'female', 'other']),
+    check('fullName', 'Full name is required').not().isEmpty(),
+    check('gender', 'Gender is required').isIn(['Male', 'Female']),
     check('idNumber', 'ID number is required').not().isEmpty(),
     check('department', 'Department is required').not().isEmpty(),
     check('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 }),
@@ -36,6 +35,6 @@ router.post(
 // @route   GET api/users/me
 // @desc    Get logged in user
 // @access  Private
-router.get('/me', auth, userController.getUser);
+router.get('/me', userController.getUser);
 
 module.exports = router;

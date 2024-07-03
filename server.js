@@ -1,5 +1,6 @@
 const express = require('express');
 const connectDB = require('./config/db');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const app = express();
@@ -7,6 +8,7 @@ const app = express();
 connectDB();
 
 app.use(bodyParser.json());
+app.use(cors());
 
 const PORT = process.env.PORT || 5000;
 
