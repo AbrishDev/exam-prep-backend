@@ -1,23 +1,25 @@
-const express = require("express");
+// src/routes/instructorRoutes.js
+const express = require('express');
+const { check, validationResult } = require('express-validator');
+const authMiddleware = require('../middleware/authMiddleware');
+const roleMiddleware = require('../middleware/roleMiddleware');
+const instructorController = require('../controllers/instructorController');
+
 const router = express.Router();
-const { check, validationResult } = require("express-validator");
-const authMiddleware = require("../middleware/authMiddleware");
-const roleMiddleware = require("../middleware/roleMiddleware");
-const instructorController = require("../controllers/instructorController");
 
 // @route   POST api/instructors
 // @desc    Create a new instructor
 // @access  Private (SuperAdmin)
 router.post(
-  "/",
+  '/',
   [
     authMiddleware,
-    roleMiddleware("SuperAdmin"),
+    roleMiddleware('SuperAdmin'),
     [
-      check("fullName", "Full name is required").not().isEmpty(),
-      check("faculty", "Faculty is required").not().isEmpty(),
-      check("username", "Username is required").not().isEmpty(),
-      check("password", "Password is required").isLength({ min: 6 }),
+      check('fullName', 'Full name is required').not().isEmpty(),
+      check('faculty', 'Faculty is required').not().isEmpty(),
+      check('username', 'Username is required').not().isEmpty(),
+      check('password', 'Password is required').isLength({ min: 6 }),
     ],
   ],
   (req, res) => {
@@ -29,16 +31,17 @@ router.post(
   }
 );
 
+// @route   PUT api/instructors/profile
+// @desc    Update instructor profile
+// @access  Private (Instructor)
 router.put(
-  "/profile",
+  '/profile',
   [
-    authMiddleware, // Ensure user is authenticated
+    authMiddleware,
     [
-      check("fullName", "Full name is required").not().isEmpty(),
-      check("faculty", "Faculty is required").not().isEmpty(),
-      check("password", "Password must be at least 6 characters")
-        .optional()
-        .isLength({ min: 6 }),
+      check('fullName', 'Full name is required').not().isEmpty(),
+      check('faculty', 'Faculty is required').not().isEmpty(),
+      check('password', 'Password must be at least 6 characters').optional().isLength({ min: 6 }),
     ],
   ],
   (req, res) => {
@@ -54,10 +57,10 @@ router.put(
 // @desc    Login as an instructor
 // @access  Public
 router.post(
-  "/login",
+  '/login',
   [
-    check("username", "Username is required").not().isEmpty(),
-    check("password", "Password is required").exists(),
+    check('username', 'Username is required').not().isEmpty(),
+    check('password', 'Password is required').exists(),
   ],
   (req, res) => {
     const errors = validationResult(req);
@@ -71,7 +74,7 @@ router.post(
 // @route   GET api/instructors/me
 // @desc    Get instructor profile
 // @access  Private (Instructor)
-router.get("/me", authMiddleware, roleMiddleware("Instructor"), (req, res) => {
+router.get('/me', authMiddleware, roleMiddleware('Instructor'), (req, res) => {
   instructorController.getInstructorProfile(req, res);
 });
 

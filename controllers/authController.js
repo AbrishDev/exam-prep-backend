@@ -1,46 +1,69 @@
-const bcrypt = require('bcryptjs');
+// authController.js
+
 const jwt = require('jsonwebtoken');
-const { validationResult } = require('express-validator');
+const bcrypt = require('bcryptjs');
 const SuperAdmin = require('../models/SuperAdmin');
-const dotenv = require('dotenv');
+const Instructor = require('../models/Instructor');
 
-dotenv.config();
-
-// Login super admin
+// Login function for both superadmin and instructor
 exports.login = async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    let superAdmin = await SuperAdmin.findOne({ username });
+    // Check if the user is a superadmin
+    let user = await SuperAdmin.findOne({ username });
 
-    if (!superAdmin) {
-      return res.status(400).json({ msg: 'Invalid Credentials' });
-    }
-
-    const isMatch = await bcrypt.compare(password, superAdmin.password);
-
-    if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid Credentials' });
-    }
-
-    const payload = {
-      user: {
-        id: superAdmin.id,
-        role: superAdmin.role,
-      },
-    };
-
-    jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: 360000 },
-      (err, token) => {
-        if (err) throw err;
-        res.json({ token });
+    if (user) {
+      // Compare password
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ msg: 'Invalid Credentials' });
       }
-    );
+
+      // Generate JWT token with role
+      const token = jwt.sign(
+        {
+          user: {
+            id: user.id,
+            role: 'superadmin', // Adding role
+          },
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' } // Token expires in 1 hour
+      );
+
+      return res.json({ token });
+    }
+
+    // Check if the user is an instructor
+    user = await Instructor.findOne({ username });
+
+    if (user) {
+      // Compare password
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ msg: 'Invalid Credentials' });
+      }
+
+      // Generate JWT token with role
+      const token = jwt.sign(
+        {
+          user: {
+            id: user.id,
+            role: 'instructor', // Adding role
+          },
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+
+      return res.json({ token });
+    }
+
+    // User not found
+    return res.status(400).json({ msg: 'Invalid Credentials' });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send('Server Error');
   }
 };

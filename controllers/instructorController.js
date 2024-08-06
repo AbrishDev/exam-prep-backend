@@ -9,7 +9,7 @@ const jwtSecret = process.env.JWT_SECRET;
 
 // Create a new instructor
 exports.createInstructor = async (req, res) => {
-  const { fullName, profilePic, faculty, username, password } = req.body;
+  const { fullName, faculty, username, password } = req.body;
 
   try {
     let instructor = await Instructor.findOne({ username });
@@ -19,11 +19,14 @@ exports.createInstructor = async (req, res) => {
 
     instructor = new Instructor({
       fullName,
-      profilePic,
       faculty,
       username,
       password,
     });
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    instructor.password = await bcrypt.hash(password, salt);
 
     await instructor.save();
     res.status(201).json({ msg: 'Instructor created successfully' });
@@ -33,35 +36,45 @@ exports.createInstructor = async (req, res) => {
   }
 };
 
-// Login instructor
+// Login Instructor
 exports.loginInstructor = async (req, res) => {
   const { username, password } = req.body;
 
   try {
+    // Find instructor by username
     let instructor = await Instructor.findOne({ username });
+
     if (!instructor) {
       return res.status(400).json({ msg: 'Invalid Credentials' });
     }
 
+    // Compare password
     const isMatch = await bcrypt.compare(password, instructor.password);
+
     if (!isMatch) {
       return res.status(400).json({ msg: 'Invalid Credentials' });
     }
 
+    // Generate JWT Token
     const payload = {
       user: {
         id: instructor.id,
-        role: instructor.role,
+        role: instructor.role, // Make sure role is included
       },
     };
 
-    jwt.sign(payload, jwtSecret, { expiresIn: '1h' }, (err, token) => {
-      if (err) throw err;
-      res.json({ token });
-    });
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' },
+      (err, token) => {
+        if (err) throw err;
+        res.json({ token }); // Send token back to client
+      }
+    );
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).json({ msg: 'Server Error' });
   }
 };
 
@@ -78,7 +91,7 @@ exports.getInstructorProfile = async (req, res) => {
 
 // Update instructor profile including password
 exports.updateProfile = async (req, res) => {
-  const { fullName, profilePic, faculty, password } = req.body;
+  const { fullName, faculty, password } = req.body;
   const instructorId = req.user.id; // Assuming authenticated user's ID is in req.user.id
 
   try {
@@ -90,7 +103,6 @@ exports.updateProfile = async (req, res) => {
 
     // Update fields
     instructor.fullName = fullName;
-    instructor.profilePic = profilePic;
     instructor.faculty = faculty;
 
     // Update password if provided
