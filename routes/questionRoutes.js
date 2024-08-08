@@ -1,39 +1,21 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Question = require('../models/Question');
+const questionController = require("../controllers/questionController");
+const upload = require("../middleware/upload"); // Multer middleware for image upload
 
-// POST route to create a new question
-router.post('/', async (req, res) => {
-  try {
-    const { questionText, isMultipleChoice, options, category, subCategory } = req.body;
+// Route for creating a new question
+router.post("/", upload.single("image"), questionController.createQuestion);
 
-    // Validate input
-    if (!questionText || !category || !subCategory) {
-      return res.status(400).json({ message: 'Question text, category, and sub-category are required.' });
-    }
+// Route for getting all questions
+router.get("/", questionController.getAllQuestions);
 
-    // If multiple choice, ensure options are provided
-    if (isMultipleChoice && (!options || options.length === 0)) {
-      return res.status(400).json({ message: 'Options are required for multiple choice questions.' });
-    }
+// Route for getting a question by ID
+router.get("/:id", questionController.getQuestionById);
 
-    // Create a new question
-    const newQuestion = new Question({
-      questionText,
-      isMultipleChoice,
-      options: isMultipleChoice ? options : [], // Include options only if multiple choice
-      category,
-      subCategory,
-    });
+// Route for updating a question
+router.put("/:id", questionController.updateQuestion);
 
-    // Save the question to the database
-    await newQuestion.save();
-
-    res.status(201).json({ message: 'Question added successfully!', question: newQuestion });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+// Route for deleting a question
+router.delete("/:id", questionController.deleteQuestion);
 
 module.exports = router;
