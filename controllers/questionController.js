@@ -83,10 +83,16 @@ exports.createQuestion = async (req, res) => {
   }
 };
 
-// Get all questions
+// Get all questions filtered by department
 exports.getAllQuestions = async (req, res) => {
   try {
-    const questions = await Question.find();
+    const department = req.query.department; // Get department from query parameter
+
+    // If department is provided, filter by it
+    const query = department ? { department } : {};
+
+    // Find questions based on the query
+    const questions = await Question.find(query);
     res.status(200).json(questions);
   } catch (error) {
     res.status(500).json({
@@ -95,6 +101,7 @@ exports.getAllQuestions = async (req, res) => {
     });
   }
 };
+
 
 // Get a single question by ID
 exports.getQuestionById = async (req, res) => {

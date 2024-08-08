@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const questionRoutes = require('./routes/questionRoutes');
 const fileRoutes = require('./routes/fileRoutes');
 const linkRoutes = require('./routes/linkRoutes');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -15,6 +16,7 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Handle form data
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 // Define Routes
