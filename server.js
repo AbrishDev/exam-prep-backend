@@ -3,6 +3,8 @@ const connectDB = require('./config/db');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const questionRoutes = require('./routes/questionRoutes');
+const fileRoutes = require('./routes/fileRoutes');
+const linkRoutes = require('./routes/linkRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,6 +22,9 @@ app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/instructors', require('./routes/instructorRoutes'));
 app.use("/api/questions", questionRoutes);
+app.use('/api/files', fileRoutes);
+app.use('/api/links', linkRoutes);
+
 
 
 // Error handling middleware
